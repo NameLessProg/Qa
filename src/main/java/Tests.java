@@ -140,9 +140,6 @@ public class Tests {
         *       it means the review wasn't sent and the Test has failed
         * */
         Assertions.assertTrue(reviewSubmitChecker.isEmpty(),"Review wasn't delivered");
-
-
-
     }
 }
 
