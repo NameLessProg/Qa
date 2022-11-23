@@ -10,13 +10,14 @@ import java.util.List;
 
 public class Tests {
     //Shortcut method for FAST create new WebDriver.
-
     public static WebDriver setup(){
         System.setProperty("webdriver.chrome.driver","src\\main\\resources\\chromedriver.exe");
         return new ChromeDriver();
     }
+    //Creating the driver OUTside of the tests for general use && general methods like AFTER each etc.
     WebDriver driver = setup();
     
+    //AfterEach Test, this method will run and will terminate the driver (Close & Terminate)
     @AfterEach
     public void closer(){
         driver.quit();
