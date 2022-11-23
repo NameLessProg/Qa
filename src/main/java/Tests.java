@@ -1,22 +1,22 @@
-import org.jetbrains.annotations.NotNull;
+package org.example;
+
 import org.junit.jupiter.api.*;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.devtools.v107.browser.model.WindowState;
 
 import java.util.List;
 
 public class Tests {
     //Shortcut method for FAST create new WebDriver.
     public static WebDriver setup(){
-        System.setProperty("webdriver.chrome.driver","src\\main\\resources\\chromedriver.exe");
+        System.setProperty("webdriver.chrome.driver","C:\\Users\\Idan\\Downloads\\chromedriver.exe");
         return new ChromeDriver();
     }
     //Creating the driver OUTside of the tests for general use && general methods like AFTER each etc.
     WebDriver driver = setup();
-    
+
     //AfterEach Test, this method will run and will terminate the driver (Close & Terminate)
     @AfterEach
     public void closer(){
@@ -24,8 +24,7 @@ public class Tests {
     }
 
     @Test
-    void registrationProcessTest() {
-
+    public void registrationProcessTest() {
         driver.get("http://tutorialsninja.com/demo/index.php?route=account/register"); // Get to this site
 
         var firstName = driver.findElement(By.id("input-firstname"));
@@ -40,7 +39,7 @@ public class Tests {
 
         firstName.sendKeys("Idan");                 // find the element "First name" & write this text
         lastName.sendKeys("Azuri");                 // find the element "last name" & write this text
-        eMail.sendKeys("idn.az01110@gmail.com");    // find the element "Email" & write this text
+        eMail.sendKeys("idn.acz01110@gmail.com");    // find the element "Email" & write this text
         telephoneNub.sendKeys("0545646076");        // find the element "Telephone" & write this text
         passwordNum.sendKeys("123456");             // find the element "First name" & write this text
         confirmBtn.sendKeys("123456");              // find the element "Confirm" & write this text
@@ -60,27 +59,28 @@ public class Tests {
         var password2 = driver.findElement(By.id("input-password"));
         var loginBtn = driver.findElement(By.xpath("//*[@id=\"content\"]/div/div[2]/div/form/input"));
 
-        eMail2.sendKeys("idn.az010155@gmail.com"); // find the element "Email" & write this text
+        eMail2.sendKeys("idn.acz01110@gmail.com"); // find the element "Email" & write this text
         password2.sendKeys("123456"); // find the element "Password" & write this text
         loginBtn.click();  // find the element by xpath & click
 
-        {
+        { //making sure the SignIn accrued with an existing email && password in the DB (Registered before)
             List<WebElement> elements = driver.findElements(By.xpath("//*[@id=\"account-login\"]/div[1]"));
             Assertions.assertTrue(elements.isEmpty(), "Login failed, Un-existing User");
         }
 
         // Check if this is the correct and exact address of the site by matching.
-        Assertions.assertEquals("http://tutorialsninja.com/demo/index.php?route=account/login" , driver.getCurrentUrl());
+        Assertions.assertEquals("http://tutorialsninja.com/demo/index.php?route=account/account" , driver.getCurrentUrl());
     }
 
 
     @Test
     public void testAddToCart(){
-        
+
         driver.get("http://tutorialsninja.com/demo/index.php?route=product/product&product_id=43"); //Go to Product1 page
 
         //Adding the product to the cart
-        driver.findElement(By.id("button-cart")).click();
+        var addToCart = driver.findElement(By.id("button-cart"));
+        addToCart.click();
         //Extracting the "Price" from the product and inserting it into variable
         //Extracted text contains Signs (!, @, $ ..) & CANNOT be calculated ->> Replacing Sign With 0
         double pr1 = text2Double(driver.findElement(By.xpath("//*[@id=\"content\"]/div/div[2]/ul[2]/li[1]/h2")));
@@ -89,12 +89,14 @@ public class Tests {
         //Goes to Product2 page
         driver.get("http://tutorialsninja.com/demo/index.php?route=product/product&product_id=33");
 
-        driver.findElement(By.id("button-cart")).click(); //Adding to cart
+        addToCart = driver.findElement(By.id("button-cart")); //re-configure the element in a new page for re-use the variable
+        addToCart.click(); //Adding to cart
 
         //Extracting the "Price" from the product and inserting it into variable
         double pr2 = text2Double(driver.findElement(By.xpath("//*[@id=\"content\"]/div/div[2]/ul[2]/li[1]/h2")));
 
-        driver.findElement(By.cssSelector("#top-links > ul > li:nth-child(4) > a > i")).click(); //clicking the Shopping Cart
+        var shoppingBtn = driver.findElement(By.cssSelector("#top-links > ul > li:nth-child(4) > a > i"));
+        shoppingBtn.click(); //clicking the Shopping Cart
 
         //Using method to extract the number without the symbol "$"
         double subTotal = text2Double(driver.findElement(By.xpath("//*[@id=\"content\"]/div[2]/div/table/tbody/tr[4]/td[2]")));
@@ -110,37 +112,48 @@ public class Tests {
 
     @Test
     public void testReview() {
-
+        //Goes to a specific Product page
         driver.get("http://tutorialsninja.com/demo/index.php?route=product/product&product_id=43");
-
-        driver.findElement(By.xpath("//*[@id=\"content\"]/div/div[1]/ul[2]/li[3]/a")).click();
-
-        driver.findElement(By.cssSelector("#content > div > div.col-sm-4 > div.rating > p > a:nth-child(7)")).click();
-
-        //Config elements
-
-        driver.findElement(By.id("input-name")).sendKeys("LEL");
+        //Clicking on add to cart
+        var reviewSlide= driver.findElement(By.xpath("//*[@id=\"content\"]/div/div[1]/ul[2]/li[3]/a"));
+        reviewSlide.click();
+        //clicking on "Write a review" button
+        var writeReview=driver.findElement(By.cssSelector("#content > div > div.col-sm-4 > div.rating > p > a:nth-child(7)"));
+        writeReview.click();
+        //Sends to the "Reviewer name" Textbox the given String (Text)
+        var reviewerName = driver.findElement(By.id("input-name"));
+        reviewerName.sendKeys("LEL");
         //Review MUST be 20 Chars AT-LEAST!
-        char review = 'a';
+        var reviewInput=    driver.findElement(By.id("input-review"));
 
-        for (int i = 0; i < 20; i++) {
-        driver.findElement(By.id("input-review")).sendKeys(review+""+i);
+        char review = 'a'; //Variable type char contains the review
+        //for loop to send the wanted amount of chars by choice
+        //min - 25 chars, Max - 1,000
+        for (int i = 0; i < 25; i++) {
+            reviewInput.sendKeys(review+""); //Giving variable type char instead of String to String-type method
+            //+"" - convert it to String
         }
+
         //Mid-score review
+        //Challenge: get the middle review score with List
         List<WebElement> reviewScore = driver.findElements(By.name("rating"));
         int index = reviewScore.size()/2;
         reviewScore.get(index).click();
 
-        driver.findElement(By.id("button-review")).click();
+        //Submitting the review by cling to the continue button
+        var continueBtn = driver.findElement(By.id("button-review"));
+        continueBtn.click();
 
         //Finds the ERROR-Exclamation mark message & gets it in the ARRAY
-        List<WebElement> reviewSubmitChecker = driver.findElements(By.cssSelector("#form-review > div.alert.alert-danger.alert-dismissible > i"));
+        //Checker to see if the review has sent
+        List<WebElement> reviewSubmitChecker =
+                driver.findElements(By.cssSelector
+                        ("#form-review > div.alert.alert-danger.alert-dismissible > i"));
 
         /* Array is EMPTY if the review has sent
-        *   in case of array is not empty (Contains Element)
-        *       it means the review wasn't sent and the Test has failed
-        * */
+         *   in case of array is not empty (Contains Element)
+         *       it means the review wasn't sent and the Test has failed
+         * */
         Assertions.assertTrue(reviewSubmitChecker.isEmpty(),"Review wasn't delivered");
     }
 }
-
